@@ -40,10 +40,26 @@ pipenv install -r requirements.txt
 pipenv run python app.py
 ```
 
-Or using docker (remember to set env variables!)
+Or using docker:
 
 ```
-docker run chrisfranklin/pyhacid
+docker run  -e NCID_HOST=127.0.0.1 -e NCID_PORT=3333 -e HA_URL=https://ha.example.com/api/ -e HA_TOKEN=YOURTOKENHERE -e ALEXA_TARGETS=media_player.kitchen,media_player.porch -e NOTIFY_SERVICES=lounge_tv -e ALEXA_ANNOUNCE=True -e ALEXA_PUSH=True -e ALEXA_TITLE="Call on Home Phone" --log-opt max-size=1g chrisfranklin/pyhacid
+```
+
+You can also use docker-compose:
+
+```
+pyhacid:
+    image: chrisfranklin/pyhacid:latest
+    environment:
+        - NCID_HOST=127.0.0.1
+        - NCID_PORT=3333
+        - HA_URL=https://ha.example.com/api/
+        - HA_TOKEN=YOURTOKENHERE
+        - ALEXA_TARGETS=media_player.kitchen,media_player.porch
+        - NOTIFY_SERVICES=lounge_tv
+        - ALEXA_ANNOUNCE=True
+        - ALEXA_PUSH=True
 ```
 
 ## Built With
