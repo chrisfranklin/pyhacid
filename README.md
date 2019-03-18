@@ -8,7 +8,9 @@ You will need an NCID server (AKA ncidd) setup and connected to your modem.
 
 ### Prerequisites
 
-You just need docker installed, then you need to configure the following variables
+Currently this project only works under Python 2, it fails silently on Python 3 due to an issue with the underlying socket library. This probably won't ever be fixed as it's not an issue for my use case. Just run it in Docker and put it out of mind.
+
+You need docker installed, then you need to configure the following variables
 
 ```
 NCID_HOST=127.0.0.1
