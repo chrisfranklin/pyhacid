@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 ncid_host = os.getenv("NCID_HOST", "127.0.0.1")
 ncid_port = int(os.getenv("NCID_PORT", 3333))
+ncid_connected = False
 
 ha_url = os.getenv("HA_URL")
 ha_token = os.getenv("HA_TOKEN")
@@ -74,12 +75,12 @@ def notify_service(message, target):
 	return response
 
 def main():
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	try:
-		logging.info("Connecting to ncidd server at {}:{}".format(ncid_host, ncid_port))
-		s.connect((ncid_host, ncid_port))
-		logging.info("Established connection to CID server, listening...")
-		while True:
+	logging.info("Connecting to ncidd server at {}:{}".format(ncid_host, ncid_port))
+	ncid_connected = True
+	while True:
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		try:
+			s.connect((ncid_host, ncid_port))
 			data = s.recv(1024)
 			if data[:4] == "CID:":
 				cid = incomingCall(data[:-1])
@@ -98,10 +99,23 @@ def main():
 					for service in notify_services.split(','):
 						notify_service(message, service)
 			time.sleep(0.1)
-	except:
-		raise
-	finally:
-		s.close()
+		except socket.error as e:
+			logging.error(e)
+			ncid_connected = False
+			s = socket.socket()
+			logging.info( "Connection lost... reconnecting." )
+			while not ncid_connected:
+				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				try:
+					s.connect((ncid_host, ncid_port))
+					ncid_connected = True
+					logging.info("Reconnected.")
+				except socket.error:
+					time.sleep(2)
+		except:
+			raise
+		finally:
+			s.close()
 
 if __name__ == "__main__":
 	main()
